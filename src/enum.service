@@ -1,0 +1,21 @@
+[Unit]
+Description=Open Mind MNP DNS UDP NAPTR Server With MySQL DB
+After=network.target
+OnFailure=unit-status-mail@%n.service
+
+[Service]
+User=omn
+# Type=forking
+WorkingDirectory=/home/omn/MNP/GlobalMysqlEngine
+ExecStart=/home/omn/MNP/GlobalMysqlEngine/UdpDnsServerMySQL
+ExecReload=/bin/kill -SIGHUP $MAINPID
+StandardOutput=file:/var/log/enum.log
+StandardError=file:/var/log/enum.log
+TimeoutSec=10
+Restart=always
+RestartSec=10
+StartLimitInterval=350
+StartLimitBurst=10
+
+[Install]
+WantedBy=multi-user.target
