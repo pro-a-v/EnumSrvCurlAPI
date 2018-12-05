@@ -1,5 +1,5 @@
 project(EnumSrvCurlAPI)
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 2.8)
 
 execute_process(COMMAND mysql_config --cflags OUTPUT_VARIABLE MYSQL_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND mysql_config --libs OUTPUT_VARIABLE MYSQL_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -25,5 +25,4 @@ set(SOURCE_FILES
 
 
 add_executable(EnumSrvCurlAPI ${SOURCE_FILES})
-#target_link_libraries(EnumSrvCurlAPI ${Boost_LIBRARIES} ${OpenSSL_LIBRARIES} ${CPPNETLIB_LIBRARIES} pthread m dl)
 target_link_libraries(EnumSrvCurlAPI ${Boost_LIBRARIES} ${MYSQL_LIBS} pthread m dl)

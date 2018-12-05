@@ -24,7 +24,7 @@ void OperatorsList::LoadData()
         return;
     }
 
-    if  (!mysql_real_connect(&mysql,"127.0.0.1","login","pass","db_name",0,nullptr,0))
+    if  (!mysql_real_connect(&mysql,"10.10.2.31","enumro","enumro179","enum",0,nullptr,0))
     {
          std::cout <<  "Failed to connect to MySQL: Error: " <<   mysql_error(&mysql) << std::endl;
          return;

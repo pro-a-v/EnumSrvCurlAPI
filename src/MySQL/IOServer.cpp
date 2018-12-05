@@ -42,7 +42,7 @@ IOServer::IOServer(boost::asio::io_service& io_service, short port)
 IOServer::~IOServer()
 {
    done.store(true, boost::memory_order_release);
-   delete opl;
+
 }
 
 void IOServer::do_receive()
@@ -90,18 +90,25 @@ void IOServer::RequestConsumerWorker()
                 std::string phone = std::to_string(NS.GetRequestedNumber());
                 std::cout << phone << std::endl;
                 boost::system::error_code ignored_ec;
-                if (
-                        (phone.size() != 11) ||
-                        (phone.substr(0,3) != std::string("372"))
-                    )
+                std::string perfix = phone.substr(0,3) ;
+
+                if ( phone.size() < 10 )
                 {
                     req->socket_->send_to(boost::asio::buffer(NS.AnswerError()), req->sender_endpoint_, 0, ignored_ec);
+                    continue;
+                }
+
+                if ( perfix != std::string("372") )
+                {
+                    req->socket_->send_to(boost::asio::buffer(NS.AnswerError()), req->sender_endpoint_, 0, ignored_ec);
+                    continue;
                 }
                 else
                 {
                     // http://numbribaas.elisa.ee/rest/api/operator/81941907
                     const std::string host = std::string("numbribaas.elisa.ee");
                     const std::string target = std::string("/rest/api/operator/") + phone.substr(3);
+                    std::string xml_output_if_err;
                     try
                        {
                            // The io_context is required for all I/O
@@ -137,6 +144,7 @@ void IOServer::RequestConsumerWorker()
 
                            // Write the body xml message to string
                            std::string xml_output= boost::beast::buffers_to_string(res.body().data());
+                           xml_output_if_err = xml_output;
                            std::string::size_type pos = 0;
                            while ((pos = xml_output.find("\n", pos)) != std::string::npos)  xml_output.replace(pos, 1, " ");
                            while ((pos = xml_output.find("\t", pos)) != std::string::npos)  xml_output.replace(pos, 1, " ");
@@ -167,7 +175,7 @@ void IOServer::RequestConsumerWorker()
                        }
                        catch(std::exception const& e)
                        {
-                           std::cerr << "Error: " << e.what() << std::endl;
+                           std::cerr << "Error: " << e.what() << " " << xml_output_if_err << std::endl;
                            req->socket_->send_to(boost::asio::buffer(NS.AnswerError()), req->sender_endpoint_, 0, ignored_ec);
                        }
 
